@@ -28,8 +28,13 @@ app.post("/account", (request, response) => {
     return response.status(200).send();
 });
 
-app.get("/", (request, response) => {
-    return response.json({message: "Hello my Heart;"});
+app.get("/statement/:cpf", (request, response) => {
+    const { cpf } = request.params;
+    const customer = customers.find((customer) => customer.pdf === cpf);
+    if(!customer){
+        return response.status(400).json({ error: "Customer not found"});
+    }
+    return response.json(customer.statement);
 });
 
 app.listen(3333);
