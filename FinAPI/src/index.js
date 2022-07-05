@@ -9,26 +9,16 @@ function verifyIfExistsAccountCPF(request, response, next) {
     const { cpf } = request.headers;
     const customer = customers.find((customer) => customer.pdf === cpf);
     if(!customer){
-        return response.status(400).json({ error: "Customer not found"});
+        return response.status(400).json({ error: "Customer not found: " + cpf});
     }
-    console.log("OKOK: " + customer.cpf);
     request.customer = customer; 
     return next();
 }
-
-
-/**
- * cpf - string
- *  name - string
- *  id - uuid
- *  statement []
- */
 app.post("/account", (request, response) => {
     const { cpf, name } = request.body;
     const custormerAlreadyExists = customers.some(
         (customer) => customer.cpf === cpf
     );
-
     if(custormerAlreadyExists){
         return response.status(400).json({ error: "Customer already exists!"});
     }
@@ -43,9 +33,22 @@ app.post("/account", (request, response) => {
 });
 
 //app.use(verifyIfExistsAccountCPF);
-app.get("/statement/:cpf", verifyIfExistsAccountCPF, (request, response) => {
-    const { customer } = request;
+app.get("/statement", verifyIfExistsAccountCPF, (request, response) => {
+    const  { customer }  = request;
     return response.json(customer.statement);
+});
+
+app.post("/deposit", verifyIfExistsAccountCPF, (request, response) => {
+    const { description, amount } = request.body;
+    const { customer } = request;
+    const statementOperation = {
+        description, 
+        amount,
+        created_at: new Date(),
+        type: "Credit"
+    }
+    customer.statement.push(statementOperation);
+    return response.status(201).send();
 });
 
 app.listen(3333);
