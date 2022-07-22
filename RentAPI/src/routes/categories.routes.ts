@@ -12,7 +12,7 @@ categoriesRoutes.post("/", (request, response) => {
 });
 
 categoriesRoutes.get("/", (request, response) => {
-    const all = categoriesRepository.listAll();
+    const all = categoriesRepository.list();
     response.json(all);
 });
 export { categoriesRoutes };
